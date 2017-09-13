@@ -292,7 +292,7 @@ for index, id_spec in enumerate(spec_ids):
 
 newDat = n.transpose(table_all)
 
-all_cols = []
+all_cols = [fits.Column(name="spec_id", format='K', array=spec_ids)]
 for data_array, head in zip(newDat, headers.split()):
 	all_cols.append(fits.Column(name=head, format='D', array=data_array))
 
