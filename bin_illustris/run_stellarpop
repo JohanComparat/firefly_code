@@ -28,7 +28,7 @@ def runSpec(path_2_spec):
 	ageMax = np.log10(cosmo.age(spec.redshift).value*1e9)
 		
 	outputFolder = join( os.environ['ILLUSTRIS_DIR'], 'stellarpop')
-	output_file = join(outputFolder , 'spFly-' + os.path.basename(specLiteFile) )
+	output_file = join(outputFolder , 'spFly-' + os.path.basename(path_2_spec) )
 	print( t0                          )
 	print( output_file                 )
 	print( "--------------------------")
@@ -37,14 +37,12 @@ def runSpec(path_2_spec):
 	
 	prihdr = spm.pyfits.Header()
 	prihdr['FILE']          = os.path.basename(output_file)
-	prihdr['PLATE']         = plate 
-	prihdr['MJD']           = mjd   
-	prihdr['FIBERID']       = fibre 
-	prihdr['MODELS']	    = "Maraston_2011"
-	prihdr['FITTER']	    = "FIREFLY"	
-	#prihdr['MODEL']  	    = "m11"
-	prihdr['AGEMIN']	    = "6"		
-	prihdr['AGEMAX']	    = "10"
+	prihdr['FITTER']	= "FIREFLY"
+	id = int(os.path.basename(path_2_spec)[:-5].split('_')[-1])
+	print(id)	
+	prihdr['ID']  	    	= id
+	prihdr['AGEMIN']	= "6"		
+	prihdr['AGEMAX']	= "10"
 	prihdr['ZMIN']	        = "-3.0"
 	prihdr['ZMAX']	        = "1.0"
 	prihdr['redshift']	    = spec.redshift
@@ -150,8 +148,6 @@ def runSpec(path_2_spec):
 	print ("time used =", time.time()-t0 ,"seconds")
 	return spec
 
-fileList = np.array(glob.glob(join( os.environ['EBOSSDR14_DIR'], 'spectra', str(plate), 'spec-*.fits')))
-fileList.sort()
 
 spec = runSpec( path_2_spec )
 	

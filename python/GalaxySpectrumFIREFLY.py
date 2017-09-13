@@ -23,7 +23,9 @@ from firefly_dust import get_dust_radec
 
 import astropy.cosmology as cc
 cosmo = cc.Planck13
+import astropy.units as u
 import astropy.units as uu
+
 
 
 class GalaxySpectrumFIREFLY:
@@ -65,17 +67,17 @@ class GalaxySpectrumFIREFLY:
 		self.ra=0.
 		self.dec=0.
 		self.redshift = 0.01
-		self.wavelength = data[0] * (1+ self.redshift)
 		
-		hdu=fits.open(self.path_to_spectrum) 
+		hdu=pyfits.open(self.path_to_spectrum) 
 		spec_data = hdu[7].data
-		area = 4. * n.pi * cosmo.luminosity_distance(self.redshift).to(u.cm)**2.
+		area = 4. * np.pi * cosmo.luminosity_distance(self.redshift).to(u.cm)**2.
 		
 		self.restframe_wavelength = spec_data['lambda']*u.m.to(u.AA)
 		self.wavelength = self.restframe_wavelength * (1+ self.redshift)
 
 		self.flux = spec_data['L_lambda']*u.W.to(u.erg/u.s)/u.m.to(u.AA)/area.value * 1e17 # 1e-17 erg/cm2/s/A
 		self.error = self.flux * fractional_error
+		self.bad_flags = np.ones(len(self.restframe_wavelength))
 		
 		self.vdisp = 70.
 		self.trust_flag = 1

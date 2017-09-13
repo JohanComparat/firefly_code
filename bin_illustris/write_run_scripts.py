@@ -1,12 +1,13 @@
 import os
 from os.path import join
 import numpy as n
+import glob
 
 def writeScript(rootName, spec):
 	basename = os.path.basename(spec)[:-5]
 	f=open(rootName+".sh",'w')
 	f.write("#!/bin/bash \n")
-	f.write("#PBS -l walltime=10:00:00 \n")
+	f.write("#PBS -l walltime=00:30:00 \n")
 	f.write("#PBS -o "+basename+".o.$PBS_JOBID \n")
 	f.write("#PBS -e "+basename+".e.$PBS_JOBID \n")
 	f.write("#PBS -M comparat@mpe.mpg.de \n")
@@ -22,6 +23,7 @@ def writeScript(rootName, spec):
 
 spectra = n.array(glob.glob(os.path.join(os.environ['ILLUSTRIS_DIR'], 'spectra', 'broadband_*.fits' )))
 spectra.sort()
+print spectra
 for spec in spectra:
 	rootName = join(os.environ['HOME'], "batch_illustris", os.path.basename(spec)[:-5])
-
+	writeScript(rootName, spec)
