@@ -14,8 +14,9 @@ data = fits.open(path_2_file)[1].data
 
 selection = (data['ZWARNING_NOQSO']==0) & (data['CLASS_NOQSO']=="GALAXY") & (data['Z_NOQSO'] > data['Z_ERR_NOQSO']) & (data['Z_ERR_NOQSO']>0) 
 
-bds = n.arange(0,len(data),100000)
-for jj in n.arange(0,len(data)+100000,100000)[:-1]:
+Nchunk = 10
+bds = n.arange(0,len(data),Nchunk)
+for jj in n.arange(0,len(data)+Nchunk,Nchunk):
 	out_file = os.environ['DATA_DIR'], 'status', 'status-eBOSS-'+str(bds[jj])+'.txt'
 	f = open(out_file, 'w')
 	for ii, el in enumerate(data[bds[jj]:bds[jj+1]]) :
