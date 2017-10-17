@@ -60,6 +60,72 @@ class GalaxySpectrumFIREFLY:
 		self.hpf_mode = hpf_mode
 		self.N_angstrom_masked = N_angstrom_masked
 
+	def open_AGN_stack(self):
+		self.ra=0.
+		self.dec=0.
+		self.redshift = 0.59
+		
+		spec_data=np.loadtxt(self.path_to_spectrum, unpack=True) 
+		self.area = 4. * np.pi * cosmo.luminosity_distance(self.redshift).to(u.cm)**2. / 10**40
+		
+		self.restframe_wavelength = spec_data[0]
+		self.wavelength = self.restframe_wavelength * (1+ self.redshift)
+
+		self.flux = spec_data[1]/self.area.value * 1e17 # 1e-17 erg/cm2/s/A
+		self.error = spec_data[2]/self.area.value * 1e17
+		self.bad_flags = np.ones(len(self.restframe_wavelength))
+		
+		self.vdisp = 70.
+		self.trust_flag = 1
+		self.objid = 0
+		
+		lines_mask = ((self.restframe_wavelength > 3728 - self.N_angstrom_masked) & (self.restframe_wavelength < 3728 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 5007 - self.N_angstrom_masked) & (self.restframe_wavelength < 5007 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 4861 - self.N_angstrom_masked) & (self.restframe_wavelength < 4861 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 6564 - self.N_angstrom_masked) & (self.restframe_wavelength < 6564 + self.N_angstrom_masked)) 
+
+		self.restframe_wavelength = self.restframe_wavelength[(lines_mask==False)] 
+		self.wavelength = self.wavelength[(lines_mask==False)] 
+		self.flux = self.flux[(lines_mask==False)] 
+		self.error = self.error[(lines_mask==False)] 
+		self.bad_flags = self.bad_flags[(lines_mask==False)] 		
+		
+		bad_data = np.isnan(self.flux) | np.isinf(self.flux) | (self.flux <= 0.0) | np.isnan(self.error) | np.isinf(self.error)
+		# removes the bad data from the spectrum 
+		self.flux[bad_data] 	= 0.0
+		self.error[bad_data] 	= np.max(self.flux) * 99999999999.9
+		self.bad_flags[bad_data] = 0
+
+		self.r_instrument = np.zeros(len(self.wavelength))
+		for wi,w in enumerate(self.wavelength):
+			if w<6000:
+				self.r_instrument[wi] = (2270.0-1560.0)/(6000.0-3700.0)*w + 420.0 
+			else:
+				self.r_instrument[wi] = (2650.0-1850.0)/(9000.0-6000.0)*w + 250.0 
+
+		self.ebv_mw = 0.0
+
+
+	def remove_power_law( self, A_pl, lambda_pl, alpha_pl, A_bc, B_TE, tau_be, lambda_be ):
+		"""
+		Computes the power law for the given wet of parameters output by QSFIT
+		
+		http://adsabs.harvard.edu/abs/2017MNRAS.472.4051C
+		
+		equation 1
+		----------
+		
+		equation 2
+		----------
+		
+		A is the luminosity density at 3000 A in 10e42 erg s-1 A-1
+		B lambda (Te ) is the blackbody function at the electron temperature T e, 
+		tau BE is the optical depth at the Balmer edge and 
+		lambda BE is the edge wavelength (3645 A).
+
+		"""
+		self.power_law_continuum = A_pl * (self.restframe_wavelength/lambda_pl)**alpha_pl /self.area.value * 1e17
+
+		self.balmer_continuum = A_bc * B_TE * (1- n.e**( tau_be *(lambda_X / lambda_be)**3.))
+
+		
 	def openILLUSTRISsimulatedSpectrum(self, fractional_error=0.1 ):
 		"""
 		Reads the simulated spectra and converts it to the inputs needed by firefly.
