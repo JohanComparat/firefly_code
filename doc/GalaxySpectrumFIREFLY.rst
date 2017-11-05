@@ -1,9 +1,7 @@
 FIREFLY Spectra
-###########
+###############
 
-This class is dedicated to handling the spectra to feedin the FIREFLY code, see Wilkinson et al. 2015.
-
-https://arxiv.org/abs/1503.01124
+This class is dedicated to handling the observed / input spectra to be fed in the FIREFLY code.
 
 .. automodule:: GalaxySpectrumFIREFLY
    :members:

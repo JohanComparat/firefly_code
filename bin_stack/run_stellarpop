@@ -28,7 +28,7 @@ ageMax = np.log10(cosmo.age(spec.redshift).value*1e9)
 
 #spec.remove_power_law( A_pl, lambda_pl, alpha_pl, A_bc, B_TE, tau_be, lambda_be )
 
-output_file = join(outputFolder , "spFly-stack_spectrum_t2.fits")
+output_file = join(outputFolder , "spFly-UVext-stack_spectrum_t2.fits")
 
 print( t0                          )
 print( output_file                 )
@@ -50,33 +50,39 @@ prihdu = spm.pyfits.PrimaryHDU(header=prihdr)
 
 tables = [prihdu]
 did_not_converged = 0.
+"""
 try :
-	model_1 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES'], imfs = ['cha'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
+	model_1 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES_UVextended'], imfs = ['cha'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
 	model_1.fit_models_to_data()
 	tables.append( model_1.tbhdu )
 	#print "m1", time.time()-t0
-except (ValueError):
+except (ValueError, UnboundLocalError):
+	print('oups')
 	tables.append( model_1.create_dummy_hdu() )
 	did_not_converged +=1
 
+"""
 try :
-	model_2 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES'], imfs = ['ss'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
+	model_2 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES_UVextended'], imfs = ['ss'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
 	model_2.fit_models_to_data()
 	tables.append( model_2.tbhdu )
 	#print "m2", time.time()-t0
-except (ValueError):
+except (ValueError, UnboundLocalError):
+	print('oups')
 	tables.append( model_2.create_dummy_hdu() )
 	did_not_converged +=1
-
+"""
 try :
-	model_3 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES'], imfs = ['kr'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
+	model_3 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['MILES_UVextended'], imfs = ['kr'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
 	model_3.fit_models_to_data()
 	tables.append( model_3.tbhdu )
 	#print "m3", time.time()-t0
-except (ValueError):
+except (ValueError,UnboundLocalError) :
+	print('oups')
 	tables.append( model_3.create_dummy_hdu() )
 	did_not_converged +=1
 	
+
 try :
 	model_4 = spm.StellarPopulationModel(spec, output_file, cosmo, models = 'm11', model_libs = ['ELODIE'], imfs = ['cha'], age_limits = [6,10], downgrade_models = True, data_wave_medium = 'vacuum', Z_limits = [-3.,3.], use_downgraded_models = True, write_results = False)
 	model_4.fit_models_to_data()
@@ -136,7 +142,7 @@ try :
 except (ValueError):
 	tables.append( model_9.create_dummy_hdu() )
 	did_not_converged +=1
-
+"""
 complete_hdus = spm.pyfits.HDUList(tables)
 if os.path.isfile(output_file):
 	os.remove(output_file)
