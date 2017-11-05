@@ -60,6 +60,47 @@ class GalaxySpectrumFIREFLY:
 		self.hpf_mode = hpf_mode
 		self.N_angstrom_masked = N_angstrom_masked
 
+
+	def open_AGN_SDSS_spectrum(self, x, y, yerr, redshift, ra, dec):
+		self.ra=ra
+		self.dec=dec
+		self.redshift = redshift
+		#self.area = 4. * np.pi * cosmo.luminosity_distance(self.redshift).to(u.cm)**2. / 10**40
+		self.wavelength = x 
+		self.restframe_wavelength = x / (1+ self.redshift)
+		
+		self.flux = y # 1e-17 erg/cm2/s/A
+		self.error = yerr
+		self.bad_flags = np.ones(len(self.restframe_wavelength))
+		
+		self.vdisp = 70.
+		self.trust_flag = 1
+		self.objid = 0
+		
+		lines_mask = ((self.restframe_wavelength > 3728 - self.N_angstrom_masked) & (self.restframe_wavelength < 3728 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 5007 - self.N_angstrom_masked) & (self.restframe_wavelength < 5007 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 4861 - self.N_angstrom_masked) & (self.restframe_wavelength < 4861 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 6564 - self.N_angstrom_masked) & (self.restframe_wavelength < 6564 + self.N_angstrom_masked)) 
+
+		self.restframe_wavelength = self.restframe_wavelength[(lines_mask==False)] 
+		self.wavelength = self.wavelength[(lines_mask==False)] 
+		self.flux = self.flux[(lines_mask==False)] 
+		self.error = self.error[(lines_mask==False)] 
+		self.bad_flags = self.bad_flags[(lines_mask==False)] 		
+		
+		bad_data = np.isnan(self.flux) | np.isinf(self.flux) | (self.flux <= 0.0) | np.isnan(self.error) | np.isinf(self.error)
+		# removes the bad data from the spectrum 
+		self.flux[bad_data] 	= 0.0
+		self.error[bad_data] 	= np.max(self.flux) * 99999999999.9
+		self.bad_flags[bad_data] = 0
+
+		self.r_instrument = np.zeros(len(self.wavelength))
+		for wi,w in enumerate(self.wavelength):
+			if w<6000:
+				self.r_instrument[wi] = (2270.0-1560.0)/(6000.0-3700.0)*w + 420.0 
+			else:
+				self.r_instrument[wi] = (2650.0-1850.0)/(9000.0-6000.0)*w + 250.0 
+
+		self.ebv_mw = 0.0
+
+
 	def open_AGN_stack(self):
 		self.ra=0.
 		self.dec=0.
