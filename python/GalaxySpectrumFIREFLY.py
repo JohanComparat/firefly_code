@@ -66,8 +66,8 @@ class GalaxySpectrumFIREFLY:
 		self.dec=dec
 		self.redshift = redshift
 		#self.area = 4. * np.pi * cosmo.luminosity_distance(self.redshift).to(u.cm)**2. / 10**40
-		self.wavelength = x 
-		self.restframe_wavelength = x / (1+ self.redshift)
+		self.wavelength = x * (1+ self.redshift)
+		self.restframe_wavelength = x 
 		
 		self.flux = y # 1e-17 erg/cm2/s/A
 		self.error = yerr
@@ -329,7 +329,66 @@ class GalaxySpectrumFIREFLY:
 		else:
 			self.ebv_mw = 0.0
 
+	def measure_SNR_SDSS_spectrum(self, survey='sdssMain'):
+		"""
+		It reads an SDSS spectrum and computes median SNR values in the three bands related to each library.
 
+		The dr12 sky mask lists observed-frame wavelengths (A) where the variance of the co-added sky-subtracted sky fibers is significantly higher than from the surrounding sky continuum. To use the mask, veto any pixels whose observed lambda satisfies
+
+		It is a SDSS/BOSS/eBOSS Ly alpha product.
+
+		The reference describing it is 
+		Lee, Khee-Gan et al. 2012
+		http://adsabs.harvard.edu/abs/2013AJ....145...69L
+
+		for each lambda of the spectrum
+		A margin of 1 corresponds to one co-added pixel. Use margin = 2 to add an extra pixel of padding.
+		A recommended margin is 1.5.
+		margin = 1.5
+		selection = abs(10000.*np.log10(lambda/maskLambda)) <= margin
+	
+		"""
+		band_mins = np.array([3200., 3500., 3900., 4100., 5500., 6800., 7430.])
+		band_maxs = np.array([3500., 3900., 4100., 5500., 6800., 7430., 9300.])
+		maskLambda = np.loadtxt(os.path.join(os.environ['GIT_SPM'],'data',"dr12-sky-mask.txt"), unpack=True)
+		
+		self.hdulist = pyfits.open(self.path_to_spectrum)
+		
+		self.wavelength = 10**self.hdulist[1].data['loglam']
+		self.flux = self.hdulist[1].data['flux']
+		self.error = self.hdulist[1].data['ivar']**(-0.5)
+		self.bad_flags = np.ones(len(self.wavelength))
+		if survey=='sdssMain':
+			self.redshift = self.hdulist[2].data['Z'][0] 
+		if survey=='sdss3':
+			self.redshift = self.hdulist[2].data['Z_NOQSO'][0] 
+		if survey=='sdss4':
+			self.redshift = self.hdulist[2].data['Z_NOQSO'][0] 
+		
+		self.restframe_wavelength = self.wavelength / (1.0+self.redshift)
+		# masking sky contaminated pixels
+		ratio = np.min(abs(10000.*np.log10(np.outer(self.wavelength, 1./maskLambda))), axis=1)
+		margin = 1.5
+		veto_sky = ratio <= margin
+		# masking emission lines
+		lines_mask = ((self.restframe_wavelength > 3728 - self.N_angstrom_masked) & (self.restframe_wavelength < 3728 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 5007 - self.N_angstrom_masked) & (self.restframe_wavelength < 5007 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 4861 - self.N_angstrom_masked) & (self.restframe_wavelength < 4861 + self.N_angstrom_masked)) | ((self.restframe_wavelength > 6564 - self.N_angstrom_masked) & (self.restframe_wavelength < 6564 + self.N_angstrom_masked)) 
+		# MASKING BAD DATA
+		bad_data = np.isnan(self.flux) | np.isinf(self.flux) | (self.flux <= 0.0) | np.isnan(self.error) | np.isinf(self.error)
+		
+		self.restframe_wavelength = self.restframe_wavelength[(lines_mask==False)&(veto_sky==False)&(bad_data==False)] 
+		self.wavelength = self.wavelength[(lines_mask==False)&(veto_sky==False)&(bad_data==False)] 
+		self.flux = self.flux[(lines_mask==False)&(veto_sky==False)&(bad_data==False)] 
+		self.error = self.error[(lines_mask==False)&(veto_sky==False)&(bad_data==False)] 
+		
+		# now estimates SNR in each band 
+		snr_median_all = np.ones(len(band_mins)+1)*-9999.
+		snr_median_all[0] = np.median(self.flux /self.error )
+		for ii, (band_min, band_max) in enumerate(zip(band_mins, band_maxs)):
+			selection = (self.restframe_wavelength>band_min)&(self.restframe_wavelength>band_max)
+			if len(selection.nonzero()[0])>50:
+				snr_median_all[ii+1] = np.median(self.flux[selection] /self.error[selection] )
+		return snr_median_all
+		
 	def openObservedStack(self, fluxKeyword='medianWeightedStack'):
 		"""
 		It reads an Stack spectrum from the LF analysis and provides the input for the firefly fitting routine.
