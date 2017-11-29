@@ -16,7 +16,7 @@ Acknowledgment
 ==============
 
 If you use this code as a resource to produce a scientific result, please cite accordingly :
- * Comparat et al. 2017 (to appear mid-november) 
+ * Comparat et al. 2017 (https://arxiv.org/abs/1711.06575) 
  * Wilkinson et al. 2017 (http://adsabs.harvard.edu/abs/2017MNRAS.472.4297W)
  * Goddard et al. 2017 (https://arxiv.org/abs/1612.01546).
 
@@ -29,10 +29,17 @@ dependencies :
  - python 3 and its main packages all installable through pip: numpy, scipy, matplotlib, math ...
  - astro dependencies: astropy, installable with pip
 
-Add all the python folders you can list them like this: ls $FF_DIR/*/python) to your pythonpath.
+Add all the python folders from the FF_DIR to your pythonpath.
 
 The Maraston 2011 models available via the command
   - svn checkout https://svn.sdss.org/public/data/sdss/stellarpopmodels/tags/v1_0_1/
+
+Current run
+===========
+
+Our current runs on 
+ * SDSS data are available at http://www.sdss.org/dr14/spectro/galaxy_firefly
+ * DEEP2 data are available at http://www.mpe.mpg.de/~comparat/DEEP2
 
 Stellar population model 
 ========================
