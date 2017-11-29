@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>firefly instrument &#8212; FIREFLY - Fitting Iteratively for Relative Likelihood Analysis 1.0.4 documentation</title>
-    
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -24,13 +21,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="firefly library" href="firefly_library.html" />
     <link rel="prev" title="firefly dust" href="firefly_dust.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -94,7 +91,7 @@
 <em class="property">class </em><code class="descclassname">firefly_instrument.</code><code class="descname">VariableGaussianKernel</code><span class="sig-paren">(</span><em>sigma</em>, <em>minsig=0.01</em>, <em>nsig=3.0</em>, <em>integral=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/firefly_instrument.html#VariableGaussianKernel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#firefly_instrument.VariableGaussianKernel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Support class for variable sigma convolution.  See
 <a class="reference internal" href="#firefly_instrument.convolution_variable_sigma" title="firefly_instrument.convolution_variable_sigma"><code class="xref py py-func docutils literal"><span class="pre">convolution_variable_sigma()</span></code></a>.</p>
-<p>Stolen from M. Cappellari&#8217;s gaussian_filter1d function.</p>
+<p>Stolen from M. Cappellari’s gaussian_filter1d function.</p>
 <dl class="docutils">
 <dt>Args:</dt>
 <dd><p class="first">y (np.ndarray): Vector to convolve
@@ -339,7 +336,7 @@ masked.</li>
 <li>A 1D or 2D (<span class="math">\(N_{\rm spec}\times N_{\rm pix}\)</span>) array
 with the inverse variance of the resolution-matched flux
 sampled at the input wavelengths.  If <em>ivar</em>
-is not provided, a &#8216;None&#8217; returned as the last element</li>
+is not provided, a ‘None’ returned as the last element</li>
 </ul>
 </div></blockquote>
 </dd>
@@ -403,8 +400,8 @@ use np.exp(1) for natural logarithm.</dd>
 spectrum in flux units, you should conserve the flux in the
 resampling; if the spectrum is in units of flux density, you
 do not want to conserve the integral.</dd>
-<dt>flat (bool): (<strong>Optional</strong>) Assume the &#8216;true&#8217; y function is flat</dt>
-<dd>across a pixel, as is done in M. Cappellari&#8217;s log_rebin
+<dt>flat (bool): (<strong>Optional</strong>) Assume the ‘true’ y function is flat</dt>
+<dd>across a pixel, as is done in M. Cappellari’s log_rebin
 routine; this is the default behavior.  If set to False, the
 integration follows a basic linear interpolation across the
 pixel.</dd>
@@ -848,7 +845,7 @@ for 1D vectors.</strong></p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Johan Comparat.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
   </body>
 </html>

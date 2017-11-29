@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>FIREFLY Spectra &#8212; FIREFLY - Fitting Iteratively for Relative Likelihood Analysis 1.0.4 documentation</title>
-    
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -24,13 +21,13 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="firefly fitter" href="firefly_fitter.html" />
     <link rel="prev" title="Stellar population model" href="StellarPopulationModel.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -58,6 +55,188 @@
   <div class="section" id="firefly-spectra">
 <h1>FIREFLY Spectra<a class="headerlink" href="#firefly-spectra" title="Permalink to this headline">¶</a></h1>
 <p>This class is dedicated to handling the observed / input spectra to be fed in the FIREFLY code.</p>
+<span class="target" id="module-GalaxySpectrumFIREFLY"></span><p><em>General purpose</em>:</p>
+<p>The class GalaxySpectrumFIREFLY is dedicated to handling spectra to be fed to FIREFLY for fitting its stellar population</p>
+<p><em>Imports</em>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.io.fits</span> <span class="k">as</span> <span class="nn">pyfits</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">firefly_dust</span> <span class="k">import</span> <span class="n">get_dust_radec</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY">
+<em class="property">class </em><code class="descclassname">GalaxySpectrumFIREFLY.</code><code class="descname">GalaxySpectrumFIREFLY</code><span class="sig-paren">(</span><em>path_to_spectrum</em>, <em>milky_way_reddening=True</em>, <em>hpf_mode='on'</em>, <em>N_angstrom_masked=20.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the environnement to transform observed spectra into the input for FIREFLY.</p>
+<p>Currently SDSS spectra, speclite format is handled as well as stacks from the VVDS and the DEEP2 galaxy surveys.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_to_spectrum</strong> – path to the spectrum</li>
+<li><strong>milky_way_reddening</strong> – True if you want to correct from the Milky way redenning using the Schlegel 98 dust maps.</li>
+<li><strong>hpf_mode</strong> – models the dust attenuation observed in the spectrum using high pass filter.</li>
+<li><strong>survey</strong> – name of the survey</li>
+<li><strong>N_angstrom_masked</strong> – number ofangstrom masked around emission lines to look only at the continuum spectrum</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>In this aims, it stores the following data in the object :</dt>
+<dd><ul class="first last simple">
+<li>hdu list from the spec lite</li>
+<li>SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)</li>
+<li><dl class="first docutils">
+<dt>Metadata :</dt>
+<dd><ul class="first last">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum">
+<code class="descname">measure_SNR_SDSS_spectrum</code><span class="sig-paren">(</span><em>survey='sdssMain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an SDSS spectrum and computes median SNR values in the three bands related to each library.</p>
+<p>The dr12 sky mask lists observed-frame wavelengths (A) where the variance of the co-added sky-subtracted sky fibers is significantly higher than from the surrounding sky continuum. To use the mask, veto any pixels whose observed lambda satisfies</p>
+<p>It is a SDSS/BOSS/eBOSS Ly alpha product.</p>
+<p>The reference describing it is 
+Lee, Khee-Gan et al. 2012
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2013AJ....145...69L">http://adsabs.harvard.edu/abs/2013AJ….145…69L</a></p>
+<p>for each lambda of the spectrum
+A margin of 1 corresponds to one co-added pixel. Use margin = 2 to add an extra pixel of padding.
+A recommended margin is 1.5.
+margin = 1.5
+selection = abs(10000.*np.log10(lambda/maskLambda)) &lt;= margin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum">
+<code class="descname">openGAMAsimulatedSpectrum</code><span class="sig-paren">(</span><em>error_multiplicative_factor=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the smulated data set
+filename = os.path.join(os.environ[‘DATA_DIR’], “spm”, “GAMAmock/gal_0000_GAMA_M10_z0.15.dat”)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openILLUSTRISsimulatedSpectrum">
+<code class="descname">openILLUSTRISsimulatedSpectrum</code><span class="sig-paren">(</span><em>fractional_error=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openILLUSTRISsimulatedSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openILLUSTRISsimulatedSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads the simulated spectra and converts it to the inputs needed by firefly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedDEEP2pectrum">
+<code class="descname">openObservedDEEP2pectrum</code><span class="sig-paren">(</span><em>catalog_entry</em>, <em>survey='deep2'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedDEEP2pectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedDEEP2pectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads a VVDS spectrum and provides the input for the firefly fitting routine.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMANGASpectrum">
+<code class="descname">openObservedMANGASpectrum</code><span class="sig-paren">(</span><em>data_release</em>, <em>path_to_logcube</em>, <em>path_to_drpall</em>, <em>bin_number</em>, <em>plate_number</em>, <em>ifu_number</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedMANGASpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMANGASpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an observed MaNGA spectrum in.
+:param data_release: Must specify which data release of MaNGA you are using, as file structure has changed.
+:param data_release: Must specify the path to logcube (if using MPL5 or higher). Set to 0 otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMuseSpectrum">
+<code class="descname">openObservedMuseSpectrum</code><span class="sig-paren">(</span><em>catalog</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedMuseSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedMuseSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an observed MUSE spectrum in counts.
+:param catalog: name of the catalog with redshifts.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedSDSSSpectrum">
+<code class="descname">openObservedSDSSSpectrum</code><span class="sig-paren">(</span><em>survey='sdssMain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedSDSSSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedSDSSSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an SDSS spectrum and provides the input for the firefly fitting routine.</p>
+<p>In this aims, it stores the following data in the object :
+* hdu list from the spec lite
+* SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)
+* Metadata :</p>
+<blockquote>
+<div><ul class="simple">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStack">
+<code class="descname">openObservedStack</code><span class="sig-paren">(</span><em>fluxKeyword='medianWeightedStack'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedStack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStack" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an Stack spectrum from the LF analysis and provides the input for the firefly fitting routine.
+:param fluxKeyword: parameter to choose the mean or the median stack ‘meanWeightedStack’, ‘medianWeightedStack’</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStackTutorial">
+<code class="descname">openObservedStackTutorial</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedStackTutorial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedStackTutorial" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an Stack spectrum from the LF analysis and provides the input for the firefly fitting routine.
+:param path_to_spectrum:
+:param sdss_dir: directory with the observed spectra
+:param milky_way_reddening: True or False if you want to correct the redenning of the Milky way.
+:param hpf_mode: ‘on’ high pass filters the data to correct from dust in the galaxy.</p>
+<p>In this aims, it stores the following data in the object :
+* hdu list from the spec lite
+* SED data : wavelength (in angstrom), flux, error on the flux (in 10^{-17} erg/cm2/s/Angstrom, like the SDSS spectra)
+* Metadata :</p>
+<blockquote>
+<div><ul class="simple">
+<li>ra : in degrees J2000</li>
+<li>dec : in degrees J2000</li>
+<li>redshift : best fit</li>
+<li>vdisp : velocity dispersion in km/s</li>
+<li>r_instrument : resolution of the instrument at each wavelength observed</li>
+<li>trust_flag : 1 or True if trusted</li>
+<li>bad_flags : ones as long as the wavelength array, filters the pixels with bad data</li>
+<li>objid : object id optional : set to 0</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedVIPERSpectrum">
+<code class="descname">openObservedVIPERSpectrum</code><span class="sig-paren">(</span><em>catalog_entry</em>, <em>survey='vipers'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedVIPERSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedVIPERSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads a VVDS spectrum and provides the input for the firefly fitting routine.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedVVDSpectrum">
+<code class="descname">openObservedVVDSpectrum</code><span class="sig-paren">(</span><em>catalog_entry</em>, <em>survey='vvds'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openObservedVVDSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openObservedVVDSpectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads a VVDS spectrum and provides the input for the firefly fitting routine.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.remove_power_law">
+<code class="descname">remove_power_law</code><span class="sig-paren">(</span><em>A_pl</em>, <em>lambda_pl</em>, <em>alpha_pl</em>, <em>A_bc</em>, <em>B_TE</em>, <em>tau_be</em>, <em>lambda_be</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.remove_power_law"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.remove_power_law" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the power law for the given wet of parameters output by QSFIT</p>
+<p><a class="reference external" href="http://adsabs.harvard.edu/abs/2017MNRAS.472.4051C">http://adsabs.harvard.edu/abs/2017MNRAS.472.4051C</a></p>
+<p>A is the luminosity density at 3000 A in 10e42 erg s-1 A-1
+B lambda (Te ) is the blackbody function at the electron temperature T e, 
+tau BE is the optical depth at the Balmer edge and 
+lambda BE is the edge wavelength (3645 A).</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
@@ -113,7 +292,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2017, Johan Comparat.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
     </div>
   </body>
 </html>
