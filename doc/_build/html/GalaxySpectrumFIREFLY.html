@@ -108,6 +108,22 @@
 </dd>
 </dl>
 <dl class="method">
+<dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum">
+<code class="descname">measure_SNR_SDSS_spectrum</code><span class="sig-paren">(</span><em>survey='sdssMain'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.measure_SNR_SDSS_spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>It reads an SDSS spectrum and computes median SNR values in the three bands related to each library.</p>
+<p>The dr12 sky mask lists observed-frame wavelengths (A) where the variance of the co-added sky-subtracted sky fibers is significantly higher than from the surrounding sky continuum. To use the mask, veto any pixels whose observed lambda satisfies</p>
+<p>It is a SDSS/BOSS/eBOSS Ly alpha product.</p>
+<p>The reference describing it is 
+Lee, Khee-Gan et al. 2012
+<a class="reference external" href="http://adsabs.harvard.edu/abs/2013AJ....145...69L">http://adsabs.harvard.edu/abs/2013AJ….145…69L</a></p>
+<p>for each lambda of the spectrum
+A margin of 1 corresponds to one co-added pixel. Use margin = 2 to add an extra pixel of padding.
+A recommended margin is 1.5.
+margin = 1.5
+selection = abs(10000.*np.log10(lambda/maskLambda)) &lt;= margin</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum">
 <code class="descname">openGAMAsimulatedSpectrum</code><span class="sig-paren">(</span><em>error_multiplicative_factor=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GalaxySpectrumFIREFLY.html#GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GalaxySpectrumFIREFLY.GalaxySpectrumFIREFLY.openGAMAsimulatedSpectrum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Opens the smulated data set
