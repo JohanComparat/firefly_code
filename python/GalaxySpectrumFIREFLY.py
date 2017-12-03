@@ -73,7 +73,7 @@ class GalaxySpectrumFIREFLY:
 		self.error = yerr
 		self.bad_flags = np.ones(len(self.restframe_wavelength))
 		
-		self.vdisp = 70.
+		self.vdisp = 250.
 		self.trust_flag = 1
 		self.objid = 0
 		
