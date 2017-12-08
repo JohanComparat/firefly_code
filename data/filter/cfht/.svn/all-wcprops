@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht
+END
+QE_camera.dat
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/QE_camera.dat
+END
+Al_coating.dat
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/Al_coating.dat
+END
+Optics_TR.dat
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/Optics_TR.dat
+END

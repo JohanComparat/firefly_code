@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam
+END
+rMegacam.filter
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam/rMegacam.filter
+END
+uMegacam.filter
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam/uMegacam.filter
+END
+gMegacam.filter
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam/gMegacam.filter
+END
+yMegacam.filter
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam/yMegacam.filter
+END
+zMegacam.filter
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/repos/pyjjjj/!svn/ver/19/trunk/data/filter/cfht/megacam/zMegacam.filter
+END
